@@ -16,11 +16,11 @@
   </rosparam>
 
   <!-- PID gains -->
-  <rosparam command="load" file="$(find pal_sea_arm_controller_configuration_gazebo)/config/pids.yaml"/>
+  <rosparam command="load" file="$(find pal_sea_arm_gazebo)/config/pids.yaml"/>
   <!-- Override Gazebo Joint PID gain for arm_7_joint in case of no end-effector -->
   <param name="gains/arm_7_joint/p" value="10" if="$(eval ee_suffix == 'no-ee')"/>
 
-  <rosparam command="load" file="$(find pal_sea_arm_controller_configuration_gazebo)/config/hardware_gazebo/pal_sea_arm_pal_hardware_gazebo_$(arg file_suffix).yaml"/>
+  <rosparam command="load" file="$(find pal_sea_arm_gazebo)/config/hardware_gazebo/pal_sea_arm_pal_hardware_gazebo_$(arg file_suffix).yaml"/>
 
 
   <!-- Robot model -->

@@ -10,7 +10,9 @@
   <arg name="debug" default="false"/>
   <arg name="recording" default="false"/>
   <arg name="extra_gazebo_args" default=""/>
-  
+  <arg name="public_sim"     default="false"/>
+  <arg name="is_simulation"     default="true"/>
+
   <!-- start up world -->
   <include file="$(find pal_gazebo_worlds)/launch/pal_gazebo.launch">
     <arg name="world" value="$(arg world)"/>
@@ -33,6 +35,8 @@
   <include file="$(find pal_sea_arm_gazebo)/launch/pal_sea_arm_simulation_bringup.launch">
     <arg name="end_effector" value="$(arg end_effector)"/>
     <arg name="ft_sensor" value="$(arg ft_sensor)"/>
+    <arg name="public_sim" value="$(arg public_sim)"/>
+    <arg name="is_simulation" value="$(arg is_simulation)"/>
   </include>
 
 </launch>

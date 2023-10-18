@@ -9,7 +9,6 @@
   <license>Propietary</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <exec_depend>pal_sea_arm_controller_configuration_gazebo</exec_depend>
   <exec_depend>pal_sea_arm_gazebo</exec_depend>
 
   <export>

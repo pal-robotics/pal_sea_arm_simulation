@@ -3,10 +3,20 @@
 
   <arg name="end_effector"/>
   <arg name="ft_sensor"/>
+  <arg name="public_sim"     default="false"/>
+  <arg name="is_simulation"     default="true"/>
 
-  <include file="$(find pal_sea_arm_controller_configuration_gazebo)/launch/pal_sea_arm_controllers.launch">
+  <include file="$(find pal_sea_arm_controller_configuration)/launch/pal_sea_arm_controllers.launch">
     <arg name="end_effector" value="$(arg end_effector)"/>
     <arg name="ft_sensor" value="$(arg ft_sensor)"/>
+    <arg name="public_sim" value="$(arg public_sim)"/>
+    <arg name="is_simulation" value="$(arg is_simulation)"/>
+  </include>
+
+  <!-- Play motion -->
+  <include file="$(find pal_sea_arm_bringup)/launch/play_motion.launch">
+    <arg name="end_effector"  value="$(arg end_effector)"/>
+    <arg name="ft_sensor"  value="$(arg ft_sensor)"/>
   </include>
 
   <!-- Robot state publisher -->

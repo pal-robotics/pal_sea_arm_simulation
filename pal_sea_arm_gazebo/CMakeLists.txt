@@ -11,7 +11,7 @@ catkin_package(
 )
 
 
-foreach(dir launch scripts)
+foreach(dir config launch scripts)
     install(DIRECTORY ${dir}/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
 endforeach(dir)
