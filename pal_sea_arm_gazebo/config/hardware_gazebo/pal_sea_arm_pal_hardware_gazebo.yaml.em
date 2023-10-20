@@ -1,6 +1,6 @@
 @[if ft_sensor == "rokubi"]@
 force_torque:
-  arm_ft:
+  wrist_ft:
     sensor_joint: arm_7_joint
-    frame: arm_ft_link
+    frame: wrist_ft_link
 @[end if]@

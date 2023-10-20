@@ -98,12 +98,12 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        arm_ft_link:
+        wrist_ft_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        arm_ft_tool_link:
+        wrist_ft_tool_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -189,7 +189,7 @@ Visualization Manager:
       History Length: 1
       Name: ft_sensor
       Queue Size: 10
-      Topic: /arm_ft
+      Topic: /wrist_ft
       Torque Arrow Scale: 2
       Torque Color: 204; 204; 51
       Unreliable: false
