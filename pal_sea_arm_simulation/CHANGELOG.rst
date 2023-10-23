@@ -2,8 +2,8 @@
 Changelog for package pal_sea_arm_simulation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2023-10-23)
+------------------
 * Fixing file
 * Merge branch 'fix/ft_naming' into 'main'
   Change arm_ft\_ to wrist_ft to match TIAGo
