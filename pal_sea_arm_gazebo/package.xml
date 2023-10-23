@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>pal_sea_arm_gazebo</name>
+  <version>0.0.0</version>
+  <description>The pal_sea_arm_gazebo package</description>
+
+  <maintainer email="narcis.miguel@pal-robotics.com">Narcis Miguel</maintainer>
+
+  <license>Propietary</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>pal_gazebo_plugins</exec_depend>
+  <exec_depend>pal_gazebo_worlds</exec_depend>
+  <exec_depend>pal_hardware_gazebo</exec_depend>
+  <exec_depend>pal_sea_arm_description</exec_depend>
+
+</package>
