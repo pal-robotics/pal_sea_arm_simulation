@@ -21,6 +21,8 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_pal.include_utils import include_launch_py_description
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
 
 
 def get_model_paths(packages_names):
@@ -75,10 +77,11 @@ def generate_launch_description():
         'pal_sea_arm_bringup', ['launch', 'pal_sea_arm_bringup.launch.py'],
         launch_arguments={'use_sim_time': 'True'}.items())
 
-#    move_group = include_launch_py_description(
-#        'tiago_moveit_config', ['launch', 'move_group.launch.py'],
-#        launch_arguments={'use_sim_time': 'True'}.items(),
-#        condition=IfCondition(LaunchConfiguration('moveit')))
+    move_group = include_launch_py_description(
+        'pal_sea_arm_moveit_config', ['launch', 'move_group.launch.py'],
+        launch_arguments={'use_sim_time': 'True'}.items(),
+        condition=IfCondition(LaunchConfiguration('moveit'))
+    )
 
     packages = ['pal_sea_arm_description',
                 'pal_pro_gripper_description', 'pal_sea_arm_bringup']
@@ -102,6 +105,6 @@ def generate_launch_description():
     ld.add_action(pal_sea_arm_bringup)
 
     ld.add_action(moveit_arg)
-#    ld.add_action(move_group)
+    ld.add_action(move_group)
 
     return ld
