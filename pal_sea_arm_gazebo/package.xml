@@ -17,6 +17,8 @@
   <!-- <exec_depend>pal_hardware_gazebo</exec_depend> -->
   <exec_depend>pal_sea_arm_description</exec_depend>
   <exec_depend>pal_sea_arm_bringup</exec_depend>
+  <exec_depend>pal_sea_arm_moveit_config</exec_depend>
+  <exec_depend>pal_pro_gripper_description</exec_depend>
   <exec_depend>launch_pal</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>launch</exec_depend>
