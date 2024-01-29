@@ -2,8 +2,8 @@
 Changelog for package pal_sea_arm_simulation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2024-01-29)
+------------------
 * Merge branch 'ros2-migration' into 'humble-devel'
   Ros2 migration
   See merge request robots/pal_sea_arm_simulation!3
