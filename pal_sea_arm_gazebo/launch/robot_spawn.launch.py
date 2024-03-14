@@ -11,35 +11,45 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import SetLaunchConfiguration
 from launch.substitutions import LaunchConfiguration
 
 from launch_ros.actions import Node
+from dataclasses import dataclass
+from launch_pal.arg_utils import LaunchArgumentsBase
+
+
+@dataclass(frozen=True)
+class LaunchArguments(LaunchArgumentsBase):
+    pass
 
 
 def generate_launch_description():
 
-    # @TODO: load PID gains? used in gazebo_ros_control fork
-    # @TODO: load pal_hardware_gazebo
+    # Create the launch description
+    ld = LaunchDescription()
+    launch_arguments = LaunchArguments()
 
-    model_name = DeclareLaunchArgument(
-        'model_name', default_value='pal_sea_arm',
-        description='Gazebo model name'
-    )
+    launch_arguments.add_to_launch_description(ld)
 
-    spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
+    declare_actions(ld, launch_arguments)
+
+    return ld
+
+
+def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
+
+    set_arm_model = SetLaunchConfiguration('robot_name', 'pal_sea_arm')
+    launch_description.add_action(set_arm_model)
+
+    robot_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
-                                   '-entity', LaunchConfiguration(
-                                             'model_name'),
+                                   '-entity', LaunchConfiguration('robot_name'),
                                    "-x", "0.0", "-y", "0.0", "-z", "0.08",
                                    ],
                         output='screen')
+    launch_description.add_action(robot_entity)
 
-    # Create the launch description and populate
-    ld = LaunchDescription()
-
-    ld.add_action(model_name)
-    ld.add_action(spawn_entity)
-
-    return ld
+    return
