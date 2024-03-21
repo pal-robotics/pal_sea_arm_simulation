@@ -1,4 +1,4 @@
-# Copyright (c) 2022 PAL Robotics S.L. All rights reserved.
+# Copyright (c) 2024 PAL Robotics S.L. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,15 +14,102 @@
 
 import os
 from os import environ, pathsep
+from ament_index_python.packages import get_package_prefix
 
-from ament_index_python.packages import get_package_prefix, get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_pal.include_utils import include_launch_py_description
-from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable, SetLaunchConfiguration
+from launch.conditions import IfCondition
+from launch_pal.include_utils import include_scoped_launch_py_description
+from launch_pal.arg_utils import LaunchArgumentsBase, CommonArgs
+from launch_pal.robot_arguments import TiagoSEAArgs
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class LaunchArguments(LaunchArgumentsBase):
+    end_effector: DeclareLaunchArgument = TiagoSEAArgs.end_effector
+    ft_sensor: DeclareLaunchArgument = TiagoSEAArgs.ft_sensor
+    wrist_model: DeclareLaunchArgument = TiagoSEAArgs.wrist_model
+    moveit: DeclareLaunchArgument = CommonArgs.moveit
+    world_name: DeclareLaunchArgument = CommonArgs.world_name
+    arm_model: DeclareLaunchArgument = DeclareLaunchArgument(
+        'arm_model', default_value='pal-sea-arm-standalone',
+        choices=['pal-sea-arm-standalone', 'tiago-pro', 'tiago-sea', 'tiago-sea-dual'],
+        description='The arm model')
+
+
+def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
+
+    set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
+    launch_description.add_action(set_sim_time)
+
+    packages = ['pal_sea_arm_description', 'pal_pro_gripper_description']
+
+    model_path = get_model_paths(packages)
+
+    gazebo_model_path_env_var = SetEnvironmentVariable(
+        'GAZEBO_MODEL_PATH', model_path)
+
+    gazebo = include_scoped_launch_py_description(
+        pkg_name='pal_gazebo_worlds',
+        paths=['launch', 'pal_gazebo.launch.py'],
+        env_vars=[gazebo_model_path_env_var],
+        launch_arguments={
+            "world_name":  launch_args.world_name,
+            "model_paths": packages,
+            "resource_paths": packages,
+        })
+
+    launch_description.add_action(gazebo)
+
+    move_group = include_scoped_launch_py_description(
+        pkg_name='pal_sea_arm_moveit_config',
+        paths=['launch', 'move_group.launch.py'],
+        launch_arguments={
+            "end_effector": launch_args.end_effector,
+            "ft_sensor": launch_args.ft_sensor,
+            "wrist_model": launch_args.wrist_model,
+            "arm_model": launch_args.arm_model,
+            "use_sim_time": LaunchConfiguration("use_sim_time")},
+        condition=IfCondition(LaunchConfiguration("moveit")))
+
+    launch_description.add_action(move_group)
+
+    robot_spawn = include_scoped_launch_py_description(
+        pkg_name='pal_sea_arm_gazebo',
+        paths=['launch', 'robot_spawn.launch.py'])
+
+    launch_description.add_action(robot_spawn)
+
+    robot_bringup = include_scoped_launch_py_description(
+        pkg_name='pal_sea_arm_bringup', paths=['launch', 'pal_sea_arm_bringup.launch.py'],
+        launch_arguments={
+            "use_sim_time": LaunchConfiguration("use_sim_time"),
+            "arm_model": launch_args.arm_model,
+            "end_effector": launch_args.end_effector,
+            "ft_sensor": launch_args.ft_sensor,
+            "wrist_model": launch_args.wrist_model})
+
+    launch_description.add_action(robot_bringup)
+
+    return
+
+
+def generate_launch_description():
+
+    # Create the launch description
+    ld = LaunchDescription()
+
+    launch_arguments = LaunchArguments()
+
+    launch_arguments.add_to_launch_description(ld)
+
+    declare_actions(ld, launch_arguments)
+
+    return ld
 
 
 def get_model_paths(packages_names):
@@ -36,6 +123,9 @@ def get_model_paths(packages_names):
 
         model_paths += model_path
 
+    if 'GAZEBO_MODEL_PATH' in environ:
+        model_paths += pathsep + environ['GAZEBO_MODEL_PATH']
+
     return model_paths
 
 
@@ -48,63 +138,7 @@ def get_resource_paths(packages_names):
         package_path = get_package_prefix(package_name)
         resource_paths += package_path
 
-    return resource_paths
-
-
-def generate_launch_description():
-
-    moveit_arg = DeclareLaunchArgument(
-        'moveit', default_value='false',
-        description='Specify if launching MoveIt2'
-    )
-
-    world_name_arg = DeclareLaunchArgument(
-        'world_name', default_value='empty',
-        description="Specify world name, we'll convert to full path"
-    )
-
-    gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_directory('pal_gazebo_worlds'),
-            'launch'), '/pal_gazebo.launch.py']),
-    )
-
-    pal_sea_arm_spawn = include_launch_py_description(
-        'pal_sea_arm_gazebo', ['launch', 'pal_sea_arm_spawn.launch.py'],
-        launch_arguments={'use_sim_time': 'True'}.items())
-
-    pal_sea_arm_bringup = include_launch_py_description(
-        'pal_sea_arm_bringup', ['launch', 'pal_sea_arm_bringup.launch.py'],
-        launch_arguments={'use_sim_time': 'True'}.items())
-
-    move_group = include_launch_py_description(
-        'pal_sea_arm_moveit_config', ['launch', 'move_group.launch.py'],
-        launch_arguments={'use_sim_time': 'True'}.items(),
-        condition=IfCondition(LaunchConfiguration('moveit'))
-    )
-
-    packages = ['pal_sea_arm_description',
-                'pal_pro_gripper_description', 'pal_sea_arm_bringup']
-    model_path = get_model_paths(packages)
-    resource_path = get_resource_paths(packages)
-
-    if 'GAZEBO_MODEL_PATH' in environ:
-        model_path += pathsep + environ['GAZEBO_MODEL_PATH']
-
     if 'GAZEBO_RESOURCE_PATH' in environ:
-        resource_path += pathsep + environ['GAZEBO_RESOURCE_PATH']
+        resource_paths += pathsep + environ['GAZEBO_RESOURCE_PATH']
 
-    # Create the launch description and populate
-    ld = LaunchDescription()
-
-    ld.add_action(SetEnvironmentVariable('GAZEBO_MODEL_PATH', model_path))
-
-    ld.add_action(world_name_arg)
-    ld.add_action(gazebo)
-    ld.add_action(pal_sea_arm_spawn)
-    ld.add_action(pal_sea_arm_bringup)
-
-    ld.add_action(moveit_arg)
-    ld.add_action(move_group)
-
-    return ld
+    return resource_paths
