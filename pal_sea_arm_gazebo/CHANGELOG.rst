@@ -2,8 +2,8 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2024-03-22)
+------------------
 * Merge branch 'dtk/fix/restructure' into 'humble-devel'
   Restructure launch files
   See merge request robots/pal_sea_arm_simulation!4
