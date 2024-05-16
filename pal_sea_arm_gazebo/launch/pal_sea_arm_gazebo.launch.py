@@ -40,6 +40,7 @@ class LaunchArguments(LaunchArgumentsBase):
         choices=['pal-sea-arm-standalone', 'tiago-pro', 'tiago-sea', 'tiago-sea-dual'],
         description='The arm model')
 
+
 def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
 
     set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
