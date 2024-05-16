@@ -35,11 +35,10 @@ class LaunchArguments(LaunchArgumentsBase):
     wrist_model: DeclareLaunchArgument = TiagoSEAArgs.wrist_model
     moveit: DeclareLaunchArgument = CommonArgs.moveit
     world_name: DeclareLaunchArgument = CommonArgs.world_name
-    arm_model: DeclareLaunchArgument = DeclareLaunchArgument(
-        'arm_model', default_value='pal-sea-arm-standalone',
+    arm_type: DeclareLaunchArgument = DeclareLaunchArgument(
+        'arm_type', default_value='pal-sea-arm-standalone',
         choices=['pal-sea-arm-standalone', 'tiago-pro', 'tiago-sea', 'tiago-sea-dual'],
         description='The arm model')
-
 
 def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
 
@@ -72,7 +71,7 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
             "end_effector": launch_args.end_effector,
             "ft_sensor": launch_args.ft_sensor,
             "wrist_model": launch_args.wrist_model,
-            "arm_model": launch_args.arm_model,
+            "arm_type": launch_args.arm_type,
             "use_sim_time": LaunchConfiguration("use_sim_time")},
         condition=IfCondition(LaunchConfiguration("moveit")))
 
@@ -88,7 +87,7 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
         pkg_name='pal_sea_arm_bringup', paths=['launch', 'pal_sea_arm_bringup.launch.py'],
         launch_arguments={
             "use_sim_time": LaunchConfiguration("use_sim_time"),
-            "arm_model": launch_args.arm_model,
+            "arm_type": launch_args.arm_type,
             "end_effector": launch_args.end_effector,
             "ft_sensor": launch_args.ft_sensor,
             "wrist_model": launch_args.wrist_model})
