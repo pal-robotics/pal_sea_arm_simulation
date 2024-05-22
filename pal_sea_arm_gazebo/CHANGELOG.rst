@@ -2,6 +2,15 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'feat/auto-generated_srdf_files' into 'humble-devel'
+  rename arm_model to arm_type
+  See merge request robots/pal_sea_arm_simulation!5
+* linters
+* rename arm_model to arm_type
+* Contributors: Aina Irisarri, davidterkuile
+
 1.0.1 (2024-03-22)
 ------------------
 * Merge branch 'dtk/fix/restructure' into 'humble-devel'
