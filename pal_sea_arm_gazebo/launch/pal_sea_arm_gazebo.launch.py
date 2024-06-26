@@ -22,17 +22,18 @@ from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable, SetLaunchConfiguration
 from launch.conditions import IfCondition
 from launch_pal.include_utils import include_scoped_launch_py_description
-from launch_pal.arg_utils import LaunchArgumentsBase, CommonArgs
-from launch_pal.robot_arguments import TiagoSEAArgs
+from launch_pal.arg_utils import LaunchArgumentsBase
+from launch_pal.robot_arguments import CommonArgs
+from pal_sea_arm_description.launch_arguments import SEAArmArgs
 
 from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
 class LaunchArguments(LaunchArgumentsBase):
-    end_effector: DeclareLaunchArgument = TiagoSEAArgs.end_effector
-    ft_sensor: DeclareLaunchArgument = TiagoSEAArgs.ft_sensor
-    wrist_model: DeclareLaunchArgument = TiagoSEAArgs.wrist_model
+    end_effector: DeclareLaunchArgument = SEAArmArgs.end_effector
+    ft_sensor: DeclareLaunchArgument = SEAArmArgs.ft_sensor
+    wrist_model: DeclareLaunchArgument = SEAArmArgs.wrist_model
     moveit: DeclareLaunchArgument = CommonArgs.moveit
     world_name: DeclareLaunchArgument = CommonArgs.world_name
     arm_type: DeclareLaunchArgument = DeclareLaunchArgument(
