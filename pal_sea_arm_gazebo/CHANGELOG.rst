@@ -2,6 +2,14 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'dtk/move-robot-args' into 'humble-devel'
+  Change import for launch args
+  See merge request robots/pal_sea_arm_simulation!6
+* Change import for launch args
+* Contributors: David ter Kuile, davidterkuile
+
 1.0.2 (2024-05-22)
 ------------------
 * Merge branch 'feat/auto-generated_srdf_files' into 'humble-devel'
