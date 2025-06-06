@@ -2,6 +2,13 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update 2 files
+  - /pal_sea_arm_gazebo/package.xml
+  - /pal_sea_arm_gazebo/launch/pal_sea_arm_gazebo.launch.py
+* Contributors: davidterkuile
+
 1.0.3 (2024-06-26)
 ------------------
 * Merge branch 'dtk/move-robot-args' into 'humble-devel'
