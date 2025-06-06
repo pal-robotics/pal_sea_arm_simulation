@@ -2,8 +2,8 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.4 (2025-06-06)
+------------------
 * Update 2 files
   - /pal_sea_arm_gazebo/package.xml
   - /pal_sea_arm_gazebo/launch/pal_sea_arm_gazebo.launch.py
