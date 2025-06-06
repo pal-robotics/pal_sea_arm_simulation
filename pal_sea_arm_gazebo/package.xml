@@ -16,6 +16,7 @@
   <exec_depend>pal_gazebo_worlds</exec_depend>
   <!-- <exec_depend>pal_hardware_gazebo</exec_depend> -->
   <exec_depend>pal_sea_arm_description</exec_depend>
+  <exec_depend>pal_urdf_utils</exec_depend>
   <exec_depend>pal_sea_arm_bringup</exec_depend>
   <exec_depend>pal_sea_arm_moveit_config</exec_depend>
   <exec_depend>pal_pro_gripper_description</exec_depend>

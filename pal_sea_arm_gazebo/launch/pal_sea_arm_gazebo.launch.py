@@ -47,7 +47,9 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
     launch_description.add_action(set_sim_time)
 
-    packages = ['pal_sea_arm_description', 'pal_pro_gripper_description']
+    packages = ['pal_sea_arm_description',
+                'pal_pro_gripper_description',
+                'pal_urdf_utils']
 
     model_path = get_model_paths(packages)
 
