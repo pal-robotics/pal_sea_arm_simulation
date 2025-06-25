@@ -66,25 +66,23 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     # Import controller configuration files
     pal_sea_arm_controller_path = os.path.join(get_package_share_directory('pal_sea_arm_controller_configuration'))
  
-    controller_manager_config_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'gazebo_controller_manager_cfg.yaml')
+    # controller_manager_config_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'gazebo_controller_manager_cfg.yaml')
     arm_controller_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'arm_controller.yaml')
     joint_state_broadcaster_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'joint_state_broadcaster.yaml')
 
-    # Load the YAML file for arm_controller.yaml
+    # Manage argument in the controller configuration file
     with open(arm_controller_yaml, 'r') as f:
-        arm_controller_data = yaml.safe_load(f)
-    # Replace `${ARM_SIDE_PREFIX}` with "arm" directly in the arm_controller.yaml data
-    arm_side_prefix = "arm"
-    arm_controller_data = yaml.dump(arm_controller_data, default_flow_style=False)
-    # Perform the replacement
-    arm_controller_data = arm_controller_data.replace("${ARM_SIDE_PREFIX}", arm_side_prefix)
-    # Now, overwrite the original file with the updated content
-    with open(arm_controller_yaml, 'w') as f:
-        f.write(arm_controller_data)
+        content = f.read()
+    arm_content = content.replace('${ARM_SIDE_PREFIX}', f'arm')
+    pal_sea_controller_yaml = os.path.join(pal_sea_arm_controller_path, 'config', f'pal_sea_controller_yaml')
+    
+    with open(pal_sea_controller_yaml, 'w') as arm_file:
+        arm_file.write(arm_content)
+
 
     merged_yaml = merge_param_files([
                                     # controller_manager_config_yaml,
-                                    # arm_controller_yaml, 
+                                    pal_sea_controller_yaml, 
                                     joint_state_broadcaster_yaml,
                                     ])
     
