@@ -57,7 +57,6 @@ class LaunchArguments(LaunchArgumentsBase):
     mj_simulate: DeclareLaunchArgument = DeclareLaunchArgument(
         'mj_simulate', default_value='false', choices=['true', 'false'], description='Mujoco simulation tool tags')
 
-   # TO MODIFY FILE YAML
 def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
 
     set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
@@ -66,10 +65,10 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     # Import controller configuration files
     pal_sea_arm_controller_path = os.path.join(get_package_share_directory('pal_sea_arm_controller_configuration'))
  
-    # controller_manager_config_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'gazebo_controller_manager_cfg.yaml')
-    arm_controller_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'arm_controller.yaml')
+    controller_manager_config_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'mujoco_controller_manager_cfg.yaml')
     joint_state_broadcaster_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'joint_state_broadcaster.yaml')
-
+    arm_controller_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'arm_controller.yaml')
+    
     # Manage argument in the controller configuration file
     with open(arm_controller_yaml, 'r') as f:
         content = f.read()
@@ -81,12 +80,11 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
 
 
     merged_yaml = merge_param_files([
-                                    # controller_manager_config_yaml,
+                                    controller_manager_config_yaml,
                                     pal_sea_controller_yaml, 
                                     joint_state_broadcaster_yaml,
                                     ])
     
-    print("merged",merged_yaml)
     
     model_pub = Node(
         package='pal_mujoco_model_loader_ros',
@@ -105,27 +103,31 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     launch_description.add_action(node_mujoco_ros2_control)
 
 
-    # move_group = include_scoped_launch_py_description(
-    #     pkg_name='pal_sea_arm_moveit_config',
-    #     paths=['launch', 'move_group.launch.py'],
-    #     launch_arguments={
-    #         "end_effector": launch_args.end_effector,
-    #         "ft_sensor": launch_args.ft_sensor,
-    #         "wrist_model": launch_args.wrist_model,
-    #         "arm_type": launch_args.arm_type,
-    #         "use_sim_time": LaunchConfiguration("use_sim_time")},
-    #     condition=IfCondition(LaunchConfiguration("moveit")))
+    move_group = include_scoped_launch_py_description(
+        pkg_name='pal_sea_arm_moveit_config',
+        paths=['launch', 'move_group.launch.py'],
+        launch_arguments={
+            "end_effector":"no-end-effector",
+            "wrist_model": "spherical-wrist",
+            "ft_sensor": launch_args.ft_sensor,
+            # "end_effector": launch_args.end_effector,
+            # "wrist_model": launch_args.wrist_model,
+            "arm_type": launch_args.arm_type,
+            "use_sim_time": LaunchConfiguration("use_sim_time")},
+        condition=IfCondition(LaunchConfiguration("moveit")))
 
-    # launch_description.add_action(move_group)
+    launch_description.add_action(move_group)
 
     robot_bringup = include_scoped_launch_py_description(
         pkg_name='pal_sea_arm_bringup', paths=['launch', 'pal_sea_arm_bringup.launch.py'],
         launch_arguments={
             "use_sim_time": LaunchConfiguration("use_sim_time"),
             "arm_type": launch_args.arm_type,
-            "end_effector": launch_args.end_effector,
+            "end_effector":"no-end-effector",
+            "wrist_model": "spherical-wrist",
             "ft_sensor": launch_args.ft_sensor,
-            "wrist_model": launch_args.wrist_model,
+            # "end_effector": launch_args.end_effector,
+            # "wrist_model": launch_args.wrist_model,
             'mujoco': LaunchConfiguration('mujoco'),
             'mj_position': LaunchConfiguration('mj_position'),
             'mj_motor': LaunchConfiguration('mj_motor'),
