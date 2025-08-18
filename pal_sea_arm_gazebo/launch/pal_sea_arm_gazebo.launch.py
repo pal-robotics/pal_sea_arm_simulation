@@ -59,6 +59,15 @@ def start_gazebo(context, *args, **kwargs):
     gzclient = read_launch_argument('gzclient', context)
     gazebo_version = read_launch_argument('gazebo_version', context)
 
+    set_end_effector = SetLaunchConfiguration('end_effector','pal-pro-gripper')
+    launch_description.add_action(set_end_effector)
+
+    set_wrist_model = SetLaunchConfiguration('wrist_model','spherical-wrist')
+    launch_description.add_action(set_wrist_model)
+
+    set_arm_type = SetLaunchConfiguration('arm_type','tiago-pro')
+    launch_description.add_action(set_arm_type)
+
     packages = ['pal_sea_arm_description',
                 'pal_pro_gripper_description',
                 'pal_urdf_utils']
