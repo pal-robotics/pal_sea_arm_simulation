@@ -44,46 +44,33 @@ class LaunchArguments(LaunchArgumentsBase):
         'arm_type', default_value='tiago-pro',
         choices=['pal-sea-arm-standalone', 'tiago-pro', 'tiago-sea', 'tiago-sea-dual'],
         description='The arm model')
-    mujoco: DeclareLaunchArgument = CommonArgs.mujoco
+    sim_type: DeclareLaunchArgument = CommonArgs.sim_type
     mj_control: DeclareLaunchArgument = CommonArgs.mj_control
-    mj_simulate: DeclareLaunchArgument = CommonArgs.mj_simulate
+    mj_world_name: DeclareLaunchArgument = CommonArgs.mj_world_name
 
 def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
 
     set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
     launch_description.add_action(set_sim_time)
 
-    set_mujoco = SetLaunchConfiguration('mujoco', 'true')
-    launch_description.add_action(set_mujoco)
-
-    set_end_effector = SetLaunchConfiguration('end_effector','pal-pro-gripper')
-    launch_description.add_action(set_end_effector)
-
-    set_wrist_model = SetLaunchConfiguration('wrist_model','spherical-wrist')
-    launch_description.add_action(set_wrist_model)
-
-    set_arm_type = SetLaunchConfiguration('arm_type','tiago-pro')
-    launch_description.add_action(set_arm_type)
+    set_sim_type = SetLaunchConfiguration('sim_type', 'mujoco-ros2-control')
+    launch_description.add_action(set_sim_type)
 
     # Import controller configuration files
     pal_sea_arm_controller_path = os.path.join(get_package_share_directory('pal_sea_arm_controller_configuration'))
     pal_pro_gripper_controller_path = os.path.join(get_package_share_directory('pal_pro_gripper_controller_configuration'))
-    inference_controller_path= os.path.join(get_package_share_directory('arm_controller'))
  
     controller_manager_config_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'mujoco_controller_manager_cfg.yaml')
     joint_state_broadcaster_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'joint_state_broadcaster.yaml')
     arm_controller_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'arm_controller.yaml')
-    inference_controller_yaml = os.path.join(inference_controller_path, 'config', 'joint_group_position_controller.yaml')
     pal_pro_gripper_controller_yaml = os.path.join(pal_pro_gripper_controller_path, 'config', 'gripper_controller.yaml')
 
-    
     pal_sea_controller_yaml = generate_arm_controller_configs(arm_controller_yaml, pal_sea_arm_controller_path )
     gripper_controller_yaml = generate_gripper_controller_configs(pal_pro_gripper_controller_yaml, pal_pro_gripper_controller_path)
 
    
     merged_yaml = merge_param_files([
                                     controller_manager_config_yaml,
-                                    inference_controller_yaml,
                                     pal_sea_controller_yaml, 
                                     joint_state_broadcaster_yaml,
                                     gripper_controller_yaml,
@@ -108,9 +95,9 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
             "ft_sensor": launch_args.ft_sensor,
             "end_effector": launch_args.end_effector,
             "wrist_model": launch_args.wrist_model,
-            'mujoco': LaunchConfiguration('mujoco'),
-            'mj_control': LaunchConfiguration('mj_control'),
-            'mj_simulate': LaunchConfiguration('mj_simulate'),
+            "sim_type": LaunchConfiguration("sim_type"),
+            "mj_control": LaunchConfiguration("mj_control"),
+            "mj_world_name": LaunchConfiguration("mj_world_name"),
             })
 
     launch_description.add_action(robot_bringup)
@@ -134,12 +121,12 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
 def mujoco_model_publisher(context, *args, **kwargs):
     xacro_input_args = {
             "robot_name": "pal_sea_arm",
-            "mujoco": LaunchConfiguration("mujoco").perform(context),
+            "sim_type": LaunchConfiguration("sim_type").perform(context),
             "mj_control": LaunchConfiguration("mj_control").perform(context),
-            "mj_simulate": LaunchConfiguration("mj_simulate").perform(context),
             "end_effector": LaunchConfiguration("end_effector"),
             "arm_type": LaunchConfiguration("arm_type"),
             "wrist_model": LaunchConfiguration("wrist_model"),
+            "mj_world_name": LaunchConfiguration("mj_world_name").perform(context),
     }
     
     model_pub = Node(
