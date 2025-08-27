@@ -46,15 +46,21 @@ class LaunchArguments(LaunchArgumentsBase):
         description='The arm model')
     sim_type: DeclareLaunchArgument = CommonArgs.sim_type
     mj_control: DeclareLaunchArgument = CommonArgs.mj_control
-    mj_world_name: DeclareLaunchArgument = CommonArgs.mj_world_name
+    world_name: DeclareLaunchArgument = CommonArgs.world_name
 
 def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
 
+    # Set use_sim_time to True
     set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
     launch_description.add_action(set_sim_time)
 
+    # Set simulation_type to Mujoco Ros2 Control
     set_sim_type = SetLaunchConfiguration('sim_type', 'mujoco-ros2-control')
     launch_description.add_action(set_sim_type)
+
+    # Set world for Mujoco simulation
+    set_world_name = SetLaunchConfiguration('world_name', 'floor')
+    launch_description.add_action(set_world_name)
 
     # Import controller configuration files
     pal_sea_arm_controller_path = os.path.join(get_package_share_directory('pal_sea_arm_controller_configuration'))
@@ -97,7 +103,7 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
             "wrist_model": launch_args.wrist_model,
             "sim_type": LaunchConfiguration("sim_type"),
             "mj_control": LaunchConfiguration("mj_control"),
-            "mj_world_name": LaunchConfiguration("mj_world_name"),
+            "world_name": LaunchConfiguration("world_name"),
             })
 
     launch_description.add_action(robot_bringup)
@@ -126,7 +132,7 @@ def mujoco_model_publisher(context, *args, **kwargs):
             "end_effector": LaunchConfiguration("end_effector"),
             "arm_type": LaunchConfiguration("arm_type"),
             "wrist_model": LaunchConfiguration("wrist_model"),
-            "mj_world_name": LaunchConfiguration("mj_world_name").perform(context),
+            "world_name": LaunchConfiguration("world_name").perform(context),
     }
     
     model_pub = Node(
