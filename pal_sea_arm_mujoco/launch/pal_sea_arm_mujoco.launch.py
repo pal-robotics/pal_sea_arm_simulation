@@ -16,7 +16,6 @@ import os
 import yaml
 from os import environ, pathsep
 
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument, SetLaunchConfiguration,OpaqueFunction
@@ -27,8 +26,11 @@ from launch_pal.robot_arguments import CommonArgs
 from pal_sea_arm_description.launch_arguments import SEAArmArgs
 
 from launch_ros.actions import Node
-from ament_index_python.packages import get_package_share_directory
-from launch_pal.param_utils import merge_param_files
+
+from launch.actions import ExecuteProcess
+from launch.substitutions import PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
+
 
 from dataclasses import dataclass
 
@@ -62,37 +64,6 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     set_world_name = SetLaunchConfiguration('world_name', 'floor')
     launch_description.add_action(set_world_name)
 
-    # Import controller configuration files
-    pal_sea_arm_controller_path = os.path.join(get_package_share_directory('pal_sea_arm_controller_configuration'))
-    pal_pro_gripper_controller_path = os.path.join(get_package_share_directory('pal_pro_gripper_controller_configuration'))
- 
-    controller_manager_config_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'mujoco_controller_manager_cfg.yaml')
-    joint_state_broadcaster_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'joint_state_broadcaster.yaml')
-    arm_controller_yaml = os.path.join(pal_sea_arm_controller_path, 'config', 'arm_controller.yaml')
-    pal_pro_gripper_controller_yaml = os.path.join(pal_pro_gripper_controller_path, 'config', 'gripper_controller.yaml')
-
-    pal_sea_controller_yaml = generate_arm_controller_configs(arm_controller_yaml, pal_sea_arm_controller_path )
-    gripper_controller_yaml = generate_gripper_controller_configs(pal_pro_gripper_controller_yaml, pal_pro_gripper_controller_path)
-
-   
-    merged_yaml = merge_param_files([
-                                    controller_manager_config_yaml,
-                                    pal_sea_controller_yaml, 
-                                    joint_state_broadcaster_yaml,
-                                    gripper_controller_yaml,
-                                    ])
-    
-    launch_description.add_action(OpaqueFunction(
-        function=mujoco_model_publisher))
-
-    node_mujoco_ros2_control = Node(
-        package='mujoco_ros2_control',
-        executable='mujoco_ros2_control',
-        output='screen',
-        parameters=[merged_yaml, {'use_sim_time': True}],
-    ) 
-    launch_description.add_action(node_mujoco_ros2_control)
-
     robot_bringup = include_scoped_launch_py_description(
         pkg_name='pal_sea_arm_bringup', paths=['launch', 'pal_sea_arm_bringup.launch.py'],
         launch_arguments={
@@ -121,54 +92,36 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
 
     launch_description.add_action(move_group)
 
+    # Launch the conversion node
+    def converter_node_setup(context, *args, **kwargs):
+        args_list = [
+            "-p", "mujoco_robot_description",
+            "--no-fuse",
+        ]
+        return [Node(
+            package="mujoco_ros2_control",
+            executable="robot_description_to_mjcf.sh",
+            output="both",
+            emulate_tty=True,
+            arguments=args_list,
+        )]
+
+    launch_description.add_action(OpaqueFunction(function=converter_node_setup))
+
+    
+    # Mujoco Ros2 Control Simulation
+    control_node = Node(
+        package="mujoco_ros2_control",
+        executable="ros2_control_node",
+        output="both",
+        parameters=[
+            {"use_sim_time": LaunchConfiguration("use_sim_time")},
+        ],
+    )
+
+    launch_description.add_action(control_node)
 
     return
-
-def mujoco_model_publisher(context, *args, **kwargs):
-    xacro_input_args = {
-            "robot_name": "pal_sea_arm",
-            "sim_type": LaunchConfiguration("sim_type").perform(context),
-            "mj_control": LaunchConfiguration("mj_control").perform(context),
-            "end_effector": LaunchConfiguration("end_effector"),
-            "arm_type": LaunchConfiguration("arm_type"),
-            "wrist_model": LaunchConfiguration("wrist_model"),
-            "world_name": LaunchConfiguration("world_name").perform(context),
-    }
-    
-    model_pub = Node(
-        package='pal_mujoco_model_loader_ros',
-        executable='publisher',
-        parameters=[xacro_input_args],
-        output='screen'
-    )
-    
-    return [model_pub]
-
-def generate_arm_controller_configs(arm_controller_yaml, pal_sea_arm_controller_path):
-
-  # Manage argument in the controller configuration file
-    with open(arm_controller_yaml, 'r') as f:
-        content = f.read()
-    arm_content = content.replace('${ARM_SIDE_PREFIX}', f'arm')
-    pal_sea_controller_yaml = os.path.join(pal_sea_arm_controller_path, 'config', f'pal_sea_controller_yaml')
-    
-    with open(pal_sea_controller_yaml, 'w') as arm_file:
-        arm_file.write(arm_content)
-    return pal_sea_controller_yaml
-
-def generate_gripper_controller_configs(pal_pro_gripper_controller_yaml, pal_pro_gripper_controller_path):
-    
-    # Manage argument in the controller configuration file
-    with open(pal_pro_gripper_controller_yaml, 'r') as file:
-        content = file.read()
-
-    gripper_content = content.replace('${EE_SIDE_PREFIX}', f'gripper')
-    gripper_controller_yaml = os.path.join(pal_pro_gripper_controller_path, 'config', f'pal_pro_gripper_controller.yaml')
-    
-    with open(gripper_controller_yaml, 'w') as left_file:
-        left_file.write(gripper_content)
-    
-    return gripper_controller_yaml
 
 def generate_launch_description():
 
