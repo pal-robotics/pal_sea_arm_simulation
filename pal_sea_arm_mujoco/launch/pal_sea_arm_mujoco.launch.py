@@ -60,6 +60,10 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     set_sim_type = SetLaunchConfiguration('sim_type', 'mujoco-ros2-control')
     launch_description.add_action(set_sim_type)
 
+    # Set type of MuJoCo actuators
+    # mj_actuators = SetLaunchConfiguration('mj_control', 'motor')
+    # launch_description.add_action(mj_actuators)
+
     # Set world for Mujoco simulation
     set_world_name = SetLaunchConfiguration('world_name', 'floor')
     launch_description.add_action(set_world_name)
