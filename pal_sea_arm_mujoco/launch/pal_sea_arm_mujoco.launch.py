@@ -48,7 +48,7 @@ class LaunchArguments(LaunchArgumentsBase):
         description='The arm model')
     sim_type: DeclareLaunchArgument = CommonArgs.sim_type
     mj_control: DeclareLaunchArgument = CommonArgs.mj_control
-    world_name: DeclareLaunchArgument = CommonArgs.world_name
+
 
 def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
 
@@ -59,10 +59,6 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     # Set simulation_type to Mujoco Ros2 Control
     set_sim_type = SetLaunchConfiguration('sim_type', 'mujoco-ros2-control')
     launch_description.add_action(set_sim_type)
-
-    # Set type of MuJoCo actuators
-    # mj_actuators = SetLaunchConfiguration('mj_control', 'motor')
-    # launch_description.add_action(mj_actuators)
 
     # Set world for Mujoco simulation
     set_world_name = SetLaunchConfiguration('world_name', 'floor')
@@ -100,7 +96,7 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     def converter_node_setup(context, *args, **kwargs):
         args_list = [
             "-p", "mujoco_robot_description",
-            "--no-fuse",
+            "--no-fuse"
         ]
         return [Node(
             package="mujoco_ros2_control",
