@@ -12,13 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import yaml
-from os import environ, pathsep
-
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument, SetLaunchConfiguration,OpaqueFunction
+from launch.actions import DeclareLaunchArgument, SetLaunchConfiguration
+from launch.actions import OpaqueFunction
 from launch.conditions import IfCondition
 from launch_pal.include_utils import include_scoped_launch_py_description
 from launch_pal.arg_utils import LaunchArgumentsBase
@@ -26,10 +23,6 @@ from launch_pal.robot_arguments import CommonArgs
 from pal_sea_arm_description.launch_arguments import SEAArmArgs
 
 from launch_ros.actions import Node
-
-from launch.actions import ExecuteProcess
-from launch.substitutions import PathJoinSubstitution
-from launch_ros.substitutions import FindPackageShare
 
 
 from dataclasses import dataclass
@@ -108,7 +101,6 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
 
     launch_description.add_action(OpaqueFunction(function=converter_node_setup))
 
-    
     # Mujoco Ros2 Control Simulation
     control_node = Node(
         package="mujoco_ros2_control",
@@ -123,6 +115,7 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
 
     return
 
+
 def generate_launch_description():
 
     # Create the launch description
@@ -135,4 +128,3 @@ def generate_launch_description():
     declare_actions(ld, launch_arguments)
 
     return ld
-
