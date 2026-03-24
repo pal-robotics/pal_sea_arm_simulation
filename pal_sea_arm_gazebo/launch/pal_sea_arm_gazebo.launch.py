@@ -26,6 +26,8 @@ from launch_pal.arg_utils import LaunchArgumentsBase
 from launch_pal.robot_arguments import CommonArgs
 from pal_sea_arm_description.launch_arguments import SEAArmArgs
 
+from launch_ros.actions import Node
+
 from dataclasses import dataclass
 
 
@@ -38,8 +40,10 @@ class LaunchArguments(LaunchArgumentsBase):
     world_name: DeclareLaunchArgument = CommonArgs.world_name
     arm_type: DeclareLaunchArgument = DeclareLaunchArgument(
         'arm_type', default_value='pal-sea-arm-standalone',
-        choices=['pal-sea-arm-standalone', 'tiago-pro', 'tiago-sea', 'tiago-sea-dual'],
+        choices=['pal-sea-arm-standalone', 'tiago-pro',
+                 'tiago-sea', 'tiago-sea-dual'],
         description='The arm model')
+    tuck_arm: DeclareLaunchArgument = CommonArgs.tuck_arm
 
 
 def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
@@ -97,6 +101,15 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
             "wrist_model": launch_args.wrist_model})
 
     launch_description.add_action(robot_bringup)
+
+    tuck_arm = Node(
+        package='pal_sea_arm_gazebo',
+        executable='tuck_arm.py',
+        emulate_tty=True,
+        output='both',
+        condition=IfCondition(LaunchConfiguration('tuck_arm'))
+    )
+    launch_description.add_action(tuck_arm)
 
     return
 

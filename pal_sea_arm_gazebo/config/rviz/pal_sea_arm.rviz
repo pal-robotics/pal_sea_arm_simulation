@@ -156,6 +156,11 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Name: PAL_SEA_ARM
       Robot Description: robot_description
       TF Prefix: ""
