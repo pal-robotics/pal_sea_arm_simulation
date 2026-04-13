@@ -19,7 +19,12 @@ from ament_index_python.packages import get_package_prefix
 
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable, SetLaunchConfiguration
+from launch.actions import (
+    DeclareLaunchArgument,
+    OpaqueFunction,
+    SetEnvironmentVariable,
+    SetLaunchConfiguration
+)
 from launch.conditions import IfCondition
 from launch_pal.include_utils import include_scoped_launch_py_description
 from launch_pal.arg_utils import LaunchArgumentsBase
@@ -29,6 +34,7 @@ from pal_sea_arm_description.launch_arguments import SEAArmArgs
 from launch_ros.actions import Node
 
 from dataclasses import dataclass
+from launch_pal.arg_utils import read_launch_argument
 
 
 @dataclass(frozen=True)
@@ -44,12 +50,14 @@ class LaunchArguments(LaunchArgumentsBase):
                  'tiago-sea', 'tiago-sea-dual'],
         description='The arm model')
     tuck_arm: DeclareLaunchArgument = CommonArgs.tuck_arm
+    gzclient: DeclareLaunchArgument = CommonArgs.gzclient
+    gazebo_version: DeclareLaunchArgument = CommonArgs.gazebo_version
 
 
-def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
-
-    set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
-    launch_description.add_action(set_sim_time)
+def start_gazebo(context, *args, **kwargs):
+    world_name = read_launch_argument('world_name', context)
+    gzclient = read_launch_argument('gzclient', context)
+    gazebo_version = read_launch_argument('gazebo_version', context)
 
     packages = ['pal_sea_arm_description',
                 'pal_pro_gripper_description',
@@ -57,20 +65,37 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
 
     model_path = get_model_paths(packages)
 
-    gazebo_model_path_env_var = SetEnvironmentVariable(
-        'GAZEBO_MODEL_PATH', model_path)
+    if gazebo_version == 'gazebo':
+        PATH = 'GZ_SIM_RESOURCE_PATH'
+    else:
+        PATH = 'GAZEBO_MODEL_PATH'
+
+    if PATH in environ:
+        model_path += pathsep + environ[PATH]
+
+    gazebo_model_path_env_var = SetEnvironmentVariable(PATH, model_path)
 
     gazebo = include_scoped_launch_py_description(
         pkg_name='pal_gazebo_worlds',
         paths=['launch', 'pal_gazebo.launch.py'],
         env_vars=[gazebo_model_path_env_var],
         launch_arguments={
-            "world_name":  launch_args.world_name,
+            "world_name":  world_name,
             "model_paths": packages,
             "resource_paths": packages,
+            "gzclient": gzclient,
+            'gazebo_version': gazebo_version,
         })
 
-    launch_description.add_action(gazebo)
+    return [gazebo]
+
+
+def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
+
+    set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
+    launch_description.add_action(set_sim_time)
+
+    launch_description.add_action(OpaqueFunction(function=start_gazebo))
 
     move_group = include_scoped_launch_py_description(
         pkg_name='pal_sea_arm_moveit_config',
@@ -87,7 +112,10 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
 
     robot_spawn = include_scoped_launch_py_description(
         pkg_name='pal_sea_arm_gazebo',
-        paths=['launch', 'robot_spawn.launch.py'])
+        paths=['launch', 'robot_spawn.launch.py'],
+        launch_arguments={
+            "gazebo_version": LaunchConfiguration("gazebo_version"),
+        })
 
     launch_description.add_action(robot_spawn)
 
@@ -98,7 +126,8 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
             "arm_type": launch_args.arm_type,
             "end_effector": launch_args.end_effector,
             "ft_sensor": launch_args.ft_sensor,
-            "wrist_model": launch_args.wrist_model})
+            "wrist_model": launch_args.wrist_model,
+            'gazebo_version': launch_args.gazebo_version})
 
     launch_description.add_action(robot_bringup)
 
