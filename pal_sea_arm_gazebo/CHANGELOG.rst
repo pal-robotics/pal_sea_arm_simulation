@@ -2,6 +2,13 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add arguments to support the new gazebo
+* add tuck_arm node
+* adding script
+* Contributors: susannamastromauro, thomas.peyrucain
+
 1.0.4 (2025-06-06)
 ------------------
 * Update 2 files
