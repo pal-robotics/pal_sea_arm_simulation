@@ -2,6 +2,11 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add missing gz dependencies
+* Contributors: thomas.peyrucain
+
 1.1.0 (2026-04-15)
 ------------------
 * Add arguments to support the new gazebo

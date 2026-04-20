@@ -2,6 +2,9 @@
 Changelog for package pal_sea_arm_simulation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.0 (2026-04-15)
 ------------------
 
