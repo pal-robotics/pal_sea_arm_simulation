@@ -2,8 +2,8 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.2 (2026-06-04)
+------------------
 * drop gazebo hardcoded model configs
 * setting default launch arguments
 * Fixed mujoco simulation launch file

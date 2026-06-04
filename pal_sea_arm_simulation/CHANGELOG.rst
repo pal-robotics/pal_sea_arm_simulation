@@ -2,8 +2,8 @@
 Changelog for package pal_sea_arm_simulation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.2 (2026-06-04)
+------------------
 * added mujoco simulatiion
 * Contributors: Ortisa Poci
 

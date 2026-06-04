@@ -2,8 +2,8 @@
 Changelog for package pal_sea_arm_mujoco
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.2 (2026-06-04)
+------------------
 * Update version in the pal_sea_arm_mujoco
 * add mujoco-ros2-control dependence
 * improved structure
