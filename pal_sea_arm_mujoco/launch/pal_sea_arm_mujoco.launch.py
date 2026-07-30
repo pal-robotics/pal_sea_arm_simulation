@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch.actions import DeclareLaunchArgument, SetLaunchConfiguration
 from launch.actions import OpaqueFunction
 from launch.conditions import IfCondition
@@ -54,8 +54,16 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     launch_description.add_action(set_sim_type)
 
     # Set world for Mujoco simulation
-    set_world_name = SetLaunchConfiguration('world_name', 'floor')
-    launch_description.add_action(set_world_name)
+    world_name = SetLaunchConfiguration(
+            "world_name",
+            "floor",
+            condition=IfCondition(
+                PythonExpression([
+                    "'", LaunchConfiguration("world_name"), "' == 'pal_office'"
+                ])
+            )
+        )
+    launch_description.add_action(world_name)
 
     robot_bringup = include_scoped_launch_py_description(
         pkg_name='pal_sea_arm_bringup', paths=['launch', 'pal_sea_arm_bringup.launch.py'],
