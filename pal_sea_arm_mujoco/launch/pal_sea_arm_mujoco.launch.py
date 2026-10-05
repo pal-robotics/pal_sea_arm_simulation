@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument, SetLaunchConfiguration
@@ -56,21 +54,8 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     launch_description.add_action(set_sim_type)
 
     # Set world for Mujoco simulation
-    world_name = SetLaunchConfiguration(
-            "world_name",
-            "floor",
-            condition=IfCondition(
-                PythonExpression([
-                    "'", LaunchConfiguration("world_name"), "' == 'pal_office'"
-                ])
-            )
-        )
-    launch_description.add_action(world_name)
-
-    asset_path = os.path.join(
-        get_package_share_directory('pal_sea_arm_description'),
-        'mujoco', 'assets'
-    )
+    set_world_name = SetLaunchConfiguration('world_name', 'floor')
+    launch_description.add_action(set_world_name)
 
     robot_bringup = include_scoped_launch_py_description(
         pkg_name='pal_sea_arm_bringup', paths=['launch', 'pal_sea_arm_bringup.launch.py'],
@@ -104,8 +89,7 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     def converter_node_setup(context, *args, **kwargs):
         args_list = [
             "-p", "mujoco_robot_description",
-            "--no-fuse",
-            "-a", asset_path,
+            "--no-fuse"
         ]
         return [Node(
             package="mujoco_ros2_control",
