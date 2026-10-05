@@ -20,6 +20,8 @@
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>mujoco_ros2_control</exec_depend>
+  <exec_depend>pal_mujoco_scenes</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
 
 
   <test_depend>ament_lint_auto</test_depend>
