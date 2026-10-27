@@ -56,6 +56,18 @@ class LaunchArguments(LaunchArgumentsBase):
     is_public_sim: DeclareLaunchArgument = CommonArgs.is_public_sim
 
 
+def check_public_sim_end_effector(context, *args, **kwargs):
+    is_public_sim = read_launch_argument('is_public_sim', context)
+    end_effector = read_launch_argument('end_effector', context)
+
+    # The allegro-hand packages are not released for the public simulation
+    if is_public_sim in ['true', 'True'] and end_effector in ['allegro-hand', 'custom']:
+        raise Exception(
+            "The end effector 'allegro-hand' and 'custom' are not yet supported in the public simulation. "
+            "Use one of: 'pal-pro-gripper', 'pen-gripper', 'no-end-effector'")
+    return []
+
+
 def start_gazebo(context, *args, **kwargs):
     world_name = read_launch_argument('world_name', context)
     gzclient = read_launch_argument('gzclient', context)
@@ -100,6 +112,9 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     # Shows error if is_public_sim is not set to True when using public simulation
     public_sim_check = CheckPublicSim()
     launch_description.add_action(public_sim_check)
+
+    # Shows error if the end_effector is not supported in the public simulation
+    launch_description.add_action(OpaqueFunction(function=check_public_sim_end_effector))
 
     launch_description.add_action(OpaqueFunction(function=start_gazebo))
 
