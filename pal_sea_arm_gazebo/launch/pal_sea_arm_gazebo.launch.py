@@ -68,6 +68,18 @@ def check_public_sim_end_effector(context, *args, **kwargs):
     return []
 
 
+def check_public_sim_wrist_model(context, *args, **kwargs):
+    is_public_sim = read_launch_argument('is_public_sim', context)
+    wrist_model = read_launch_argument('wrist_model', context)
+
+    # The short-wrist (5 DoF) is not supported by the controllers, MoveIt and motions configuration
+    if is_public_sim in ['true', 'True'] and wrist_model == 'short-wrist':
+        raise Exception(
+            "The wrist model 'short-wrist' is not yet supported in the public simulation. "
+            "Use one of: 'straight-wrist', 'spherical-wrist'")
+    return []
+
+
 def start_gazebo(context, *args, **kwargs):
     world_name = read_launch_argument('world_name', context)
     gzclient = read_launch_argument('gzclient', context)
@@ -115,6 +127,9 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
 
     # Shows error if the end_effector is not supported in the public simulation
     launch_description.add_action(OpaqueFunction(function=check_public_sim_end_effector))
+
+    # Shows error if the wrist_model is not supported in the public simulation
+    launch_description.add_action(OpaqueFunction(function=check_public_sim_wrist_model))
 
     launch_description.add_action(OpaqueFunction(function=start_gazebo))
 
