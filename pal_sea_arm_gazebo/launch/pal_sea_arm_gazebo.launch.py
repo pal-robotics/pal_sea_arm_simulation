@@ -26,6 +26,7 @@ from launch.actions import (
     SetLaunchConfiguration
 )
 from launch.conditions import IfCondition
+from launch_pal.actions import CheckPublicSim
 from launch_pal.include_utils import include_scoped_launch_py_description
 from launch_pal.arg_utils import LaunchArgumentsBase
 from launch_pal.robot_arguments import CommonArgs
@@ -52,6 +53,7 @@ class LaunchArguments(LaunchArgumentsBase):
     tuck_arm: DeclareLaunchArgument = CommonArgs.tuck_arm
     gzclient: DeclareLaunchArgument = CommonArgs.gzclient
     gazebo_version: DeclareLaunchArgument = CommonArgs.gazebo_version
+    is_public_sim: DeclareLaunchArgument = CommonArgs.is_public_sim
 
 
 def start_gazebo(context, *args, **kwargs):
@@ -95,6 +97,10 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
     launch_description.add_action(set_sim_time)
 
+    # Shows error if is_public_sim is not set to True when using public simulation
+    public_sim_check = CheckPublicSim()
+    launch_description.add_action(public_sim_check)
+
     launch_description.add_action(OpaqueFunction(function=start_gazebo))
 
     move_group = include_scoped_launch_py_description(
@@ -127,7 +133,8 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
             "end_effector": launch_args.end_effector,
             "ft_sensor": launch_args.ft_sensor,
             "wrist_model": launch_args.wrist_model,
-            'gazebo_version': launch_args.gazebo_version})
+            'gazebo_version': launch_args.gazebo_version,
+            'is_public_sim': launch_args.is_public_sim})
 
     launch_description.add_action(robot_bringup)
 
