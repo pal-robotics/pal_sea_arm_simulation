@@ -63,7 +63,7 @@ def check_public_sim_end_effector(context, *args, **kwargs):
     # The allegro-hand packages are not released for the public simulation
     if is_public_sim in ['true', 'True'] and end_effector in ['allegro-hand', 'custom']:
         raise Exception(
-            "The end effector 'allegro-hand' and 'custom' are not yet supported in the public simulation. "
+            "The end effector 'allegro-hand' and 'custom' are not supported in this simulation."
             "Use one of: 'pal-pro-gripper', 'pen-gripper', 'no-end-effector'")
     return []
 
@@ -77,6 +77,19 @@ def check_public_sim_wrist_model(context, *args, **kwargs):
         raise Exception(
             "The wrist model 'short-wrist' is not yet supported in the public simulation. "
             "Use one of: 'straight-wrist', 'spherical-wrist'")
+    return []
+
+
+def check_public_sim_arm_type(context, *args, **kwargs):
+    is_public_sim = read_launch_argument('is_public_sim', context)
+    arm_type = read_launch_argument('arm_type', context)
+
+    # The tiago-sea arms kinematics and inertias do not match their meshes yet
+    unallowed_types = ['tiago-pro', 'tiago-sea', 'tiago-sea-dual']
+    if is_public_sim in ['true', 'True'] and arm_type in unallowed_types:
+        raise Exception(
+            f"The arm type '{arm_type}' is not yet supported in the public simulation. "
+            "Please use the default: 'pal-sea-arm-standalone'")
     return []
 
 
@@ -121,15 +134,11 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
     launch_description.add_action(set_sim_time)
 
-    # Shows error if is_public_sim is not set to True when using public simulation
-    public_sim_check = CheckPublicSim()
-    launch_description.add_action(public_sim_check)
-
-    # Shows error if the end_effector is not supported in the public simulation
+    # check public sim args
+    launch_description.add_action(CheckPublicSim())
     launch_description.add_action(OpaqueFunction(function=check_public_sim_end_effector))
-
-    # Shows error if the wrist_model is not supported in the public simulation
     launch_description.add_action(OpaqueFunction(function=check_public_sim_wrist_model))
+    launch_description.add_action(OpaqueFunction(function=check_public_sim_arm_type))
 
     launch_description.add_action(OpaqueFunction(function=start_gazebo))
 
