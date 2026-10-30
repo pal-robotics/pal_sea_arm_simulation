@@ -2,6 +2,15 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* arm base was within the floor. Adding height on spawn. this was slowing down new gaz sim
+* throw an error if arm_type arg is different from default 'pal-sea-arm-standalone'
+* wrist_model:=short-wrist not working. Add exception when launching the sim with that argument
+* throw an error if end-effector arg is set to 'allegro-hand' or 'custom'
+* add 'is_public_sim' bool to NOT start gravity compensation controller and 'input_state_broadcaster'
+* Contributors: francescodorazio
+
 1.1.2 (2026-06-04)
 ------------------
 * drop gazebo hardcoded model configs
