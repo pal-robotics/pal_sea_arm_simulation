@@ -1,0 +1,17 @@
+# Gravity compensation of the wrist force/torque sensor (FtsGravCompPlugin):
+# rokubi sensor, spherical-wrist, no-end-effector.
+# Loaded by pal_sea_arm_mujoco.launch.py when ft_sensor:=rokubi, wrist_model:=spherical-wrist and end_effector:=no-end-effector.
+# In the generated MJCF the arm_tool_link site belongs to the arm_7_link body, so the
+# MuJoCo sensor carries the whole arm_7_link subtree: arm_7, tool link, sensor, tool changer
+# and end effector. Values from the URDF masses, with tool changer, CoG in the arm_tool_link
+# site frame. Without tool changer: mass 0.5011 kg, CoG z 0.0323 m.
+/**:
+  ros__parameters:
+    mujoco_plugins:
+      fts_grav_comp:
+        type: "mujoco_ros2_control_plugins/FtsGravCompPlugin"
+        wrist_ft_sensor:
+          frame_id: arm_tool_link
+          CoG:
+            pos: [-0.0004, 0.0003, 0.0277]
+            mass: 0.5011

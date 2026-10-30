@@ -113,16 +113,34 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     launch_description.add_action(OpaqueFunction(function=converter_node_setup))
 
     # Mujoco Ros2 Control Simulation
-    control_node = Node(
-        package="mujoco_ros2_control",
-        executable="ros2_control_node",
-        output="both",
-        parameters=[
+    def control_node_setup(context, *args, **kwargs):
+        parameters = [
             {"use_sim_time": LaunchConfiguration("use_sim_time")},
-        ],
-    )
+        ]
+        # FTS gravity compensation only if the wrist has a force/torque sensor:
+        # the plugin fails to load if the sensor is not in the model
+        ft_sensor = LaunchConfiguration('ft_sensor').perform(context)
+        if ft_sensor != 'no-ft-sensor':
+            # the load on the sensor depends on the wrist and the end effector:
+            # one file per sensor, wrist and end effector
+            wrist_model = LaunchConfiguration('wrist_model').perform(context).replace('-', '_')
+            end_effector = LaunchConfiguration('end_effector').perform(context).replace('-', '_')
+            config_file = os.path.join(
+                get_package_share_directory('pal_sea_arm_mujoco'), 'config',
+                f'fts_grav_comp_{ft_sensor}_{wrist_model}_{end_effector}.yaml')
+            if os.path.exists(config_file):
+                parameters.append(config_file)
+            else:
+                print('No FTS gravity compensation for the wrist: '
+                      f'{os.path.basename(config_file)} not found')
+        return [Node(
+            package="mujoco_ros2_control",
+            executable="ros2_control_node",
+            output="both",
+            parameters=parameters,
+        )]
 
-    launch_description.add_action(control_node)
+    launch_description.add_action(OpaqueFunction(function=control_node_setup))
 
     return
 
