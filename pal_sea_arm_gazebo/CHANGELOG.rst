@@ -2,8 +2,8 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.3 (2026-10-30)
+------------------
 * arm base was within the floor. Adding height on spawn. this was slowing down new gaz sim
 * throw an error if arm_type arg is different from default 'pal-sea-arm-standalone'
 * wrist_model:=short-wrist not working. Add exception when launching the sim with that argument
