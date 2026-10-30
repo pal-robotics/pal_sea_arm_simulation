@@ -69,6 +69,7 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
             LaunchConfiguration("robot_name"),
             "-topic",
             "robot_description",
+            "-x", "0.0", "-y", "0.0", "-z", "0.08",
         ],
         condition=LaunchConfigurationEquals('gazebo_version', 'gazebo'),
     )
