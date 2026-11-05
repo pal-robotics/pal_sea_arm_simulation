@@ -2,6 +2,11 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add missing dependency for new gazebo version
+* Contributors: francescodorazio
+
 1.1.3 (2026-10-30)
 ------------------
 * arm base was within the floor. Adding height on spawn. this was slowing down new gaz sim
