@@ -2,6 +2,20 @@
 Changelog for package pal_sea_arm_mujoco
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add gravity comp plugin
+* Revert "update the pid values for the mujoco simulation"
+  This reverts commit a4ada30e02b07c853716a301de9b40ae8a686454.
+* check that the scene exists before generating the model
+* remove world_model check from the mj launch file
+* adapt to multiple mujoco scenes
+* Revert "adapt to multiple mujoco scenes"
+  This reverts commit bb3f2748a281675e1f85622c84a902f7eeddae6e.
+* update the pid values for the mujoco simulation
+* adapt to multiple mujoco scenes
+* Contributors: Ortisa Poci
+
 1.1.4 (2026-11-05)
 ------------------
 

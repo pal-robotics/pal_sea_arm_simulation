@@ -2,6 +2,9 @@
 Changelog for package pal_sea_arm_gazebo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.4 (2026-11-05)
 ------------------
 * add missing dependency for new gazebo version
