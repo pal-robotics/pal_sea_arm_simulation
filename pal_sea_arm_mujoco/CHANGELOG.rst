@@ -2,8 +2,8 @@
 Changelog for package pal_sea_arm_mujoco
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.5 (2026-11-17)
+------------------
 * add gravity comp plugin
 * Revert "update the pid values for the mujoco simulation"
   This reverts commit a4ada30e02b07c853716a301de9b40ae8a686454.
