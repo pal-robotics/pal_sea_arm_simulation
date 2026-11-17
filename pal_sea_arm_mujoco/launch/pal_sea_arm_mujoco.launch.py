@@ -21,11 +21,13 @@ from launch_pal.include_utils import include_scoped_launch_py_description
 from launch_pal.arg_utils import LaunchArgumentsBase
 from launch_pal.robot_arguments import CommonArgs
 from pal_sea_arm_description.launch_arguments import SEAArmArgs
+from ament_index_python.packages import get_package_share_directory
 
 from launch_ros.actions import Node
 
 
 from dataclasses import dataclass
+import os
 
 
 @dataclass(frozen=True)
@@ -45,6 +47,19 @@ class LaunchArguments(LaunchArgumentsBase):
 
 def declare_actions(launch_description: LaunchDescription, launch_args: LaunchArguments):
 
+    # Check that the requested MuJoCo scene exists before the xacro is processed
+    def check_world_name(context, *args, **kwargs):
+        world_name = LaunchConfiguration('world_name').perform(context)
+        scenes_dir = os.path.join(get_package_share_directory('pal_mujoco_scenes'), 'scenes')
+        available_scenes = sorted(
+            os.path.splitext(f)[0] for f in os.listdir(scenes_dir) if f.endswith('.xacro'))
+        if world_name not in available_scenes:
+            raise RuntimeError(
+                f"MuJoCo scene '{world_name}' not found in {scenes_dir}. "
+                f"Available scenes: {', '.join(available_scenes)}")
+        return []
+    launch_description.add_action(OpaqueFunction(function=check_world_name))
+
     # Set use_sim_time to True
     set_sim_time = SetLaunchConfiguration('use_sim_time', 'True')
     launch_description.add_action(set_sim_time)
@@ -52,10 +67,6 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     # Set simulation_type to Mujoco Ros2 Control
     set_sim_type = SetLaunchConfiguration('sim_type', 'mujoco-ros2-control')
     launch_description.add_action(set_sim_type)
-
-    # Set world for Mujoco simulation
-    set_world_name = SetLaunchConfiguration('world_name', 'floor')
-    launch_description.add_action(set_world_name)
 
     robot_bringup = include_scoped_launch_py_description(
         pkg_name='pal_sea_arm_bringup', paths=['launch', 'pal_sea_arm_bringup.launch.py'],
@@ -67,7 +78,7 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
             "wrist_model": launch_args.wrist_model,
             "sim_type": LaunchConfiguration("sim_type"),
             "mj_control": LaunchConfiguration("mj_control"),
-            "world_name": LaunchConfiguration("world_name"),
+            "world_name": launch_args.world_name,
             })
 
     launch_description.add_action(robot_bringup)
@@ -102,16 +113,34 @@ def declare_actions(launch_description: LaunchDescription, launch_args: LaunchAr
     launch_description.add_action(OpaqueFunction(function=converter_node_setup))
 
     # Mujoco Ros2 Control Simulation
-    control_node = Node(
-        package="mujoco_ros2_control",
-        executable="ros2_control_node",
-        output="both",
-        parameters=[
+    def control_node_setup(context, *args, **kwargs):
+        parameters = [
             {"use_sim_time": LaunchConfiguration("use_sim_time")},
-        ],
-    )
+        ]
+        # FTS gravity compensation only if the wrist has a force/torque sensor:
+        # the plugin fails to load if the sensor is not in the model
+        ft_sensor = LaunchConfiguration('ft_sensor').perform(context)
+        if ft_sensor != 'no-ft-sensor':
+            # the load on the sensor depends on the wrist and the end effector:
+            # one file per sensor, wrist and end effector
+            wrist_model = LaunchConfiguration('wrist_model').perform(context).replace('-', '_')
+            end_effector = LaunchConfiguration('end_effector').perform(context).replace('-', '_')
+            config_file = os.path.join(
+                get_package_share_directory('pal_sea_arm_mujoco'), 'config',
+                f'fts_grav_comp_{ft_sensor}_{wrist_model}_{end_effector}.yaml')
+            if os.path.exists(config_file):
+                parameters.append(config_file)
+            else:
+                print('No FTS gravity compensation for the wrist: '
+                      f'{os.path.basename(config_file)} not found')
+        return [Node(
+            package="mujoco_ros2_control",
+            executable="ros2_control_node",
+            output="both",
+            parameters=parameters,
+        )]
 
-    launch_description.add_action(control_node)
+    launch_description.add_action(OpaqueFunction(function=control_node_setup))
 
     return
 
