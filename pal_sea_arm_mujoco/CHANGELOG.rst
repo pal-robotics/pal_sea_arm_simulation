@@ -2,8 +2,8 @@
 Changelog for package pal_sea_arm_mujoco
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.6 (2026-11-18)
+------------------
 * Bump cmake_minimum_required to 3.10
 * Contributors: Mathias Lüdtke
 
