@@ -2,6 +2,11 @@
 Changelog for package pal_sea_arm_simulation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump cmake_minimum_required to 3.10
+* Contributors: Mathias Lüdtke
+
 1.1.5 (2026-11-17)
 ------------------
 
